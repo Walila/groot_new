@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: groot
+  namespace: ma
+  labels:
+    name: groot
+  annotations:
+    owner: "MATW"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: groot
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        name: groot
+      annotations:
+        owner: "MATW"
+    spec:
+      containers:
+      - name: groot
+        image: "{{IMAGE}}"
+        env:
+        - name: "ASPNETCORE_ENVIRONMENT"
+          value: "Production"
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sleep", "20"]
+        resources:
+          requests:
+            cpu: 200m
+            memory: "200Mi"
+          limits:
+            cpu: 400m
+            memory: "400Mi"
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"

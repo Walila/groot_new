@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>Groot</RootNamespace>
+        <LangVersion>12</LangVersion>
+        <NoWarn>Nu1803</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NeoLib" Version="2.0.52" />
+      <PackageReference Include="Titansoft.AspNetCore.Logging" Version="3.0.8" />
+      <PackageReference Include="Titansoft.MATW.Common" Version="1.0.4" />
+      <PackageReference Include="Titansoft.SDK.Account.Redis" Version="1.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\Guru" />
+    </ItemGroup>
+
+</Project>

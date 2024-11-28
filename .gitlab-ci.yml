@@ -1,0 +1,53 @@
+variables:
+    GCR_IMAGE: asia.gcr.io/registry-b45d6b28/compliance/groot
+    GCP_SERVICE_ACCOUNT: gitlab@registry-b45d6b28.iam.gserviceaccount.com
+    ROLLOUT_STATUS_TIMEOUT: 2m
+    K8S_NAMESPACE: ma
+    K8S_DEPLOYMENT: deployment/groot
+
+stages:
+    - test
+    - build
+    - production
+
+build-groot:
+    stage: build
+    tags:
+        - gcloud
+    script:
+        - gcloud config set account $GCP_SERVICE_ACCOUNT
+        - IMAGE_TAG="$GCR_IMAGE:$CI_COMMIT_SHORT_SHA"
+        - docker buildx build
+            -t $IMAGE_TAG
+            -f ./Dockerfile
+            --push
+            --progress=plain
+            .
+
+.prod-project-deployment:
+    stage: production
+    only:
+        - master
+    when: manual
+#    before_script:
+#        - source ./slackscript.sh; slack_trigger_alert
+    script:
+        - cd kubernetes-manifest/production
+        - cat $K8S_INGRESS_FILE | kubectl apply -f -
+        - cat deployment.yaml | sed "s|{{IMAGE}}|$GCR_IMAGE:$CI_COMMIT_SHORT_SHA|g" | kubectl apply -f -
+        - cat service.yaml | kubectl apply -f -
+        - kubectl rollout status $K8S_DEPLOYMENT -n $K8S_NAMESPACE --timeout=$ROLLOUT_STATUS_TIMEOUT
+
+production-a:
+    variables:
+        K8S_INGRESS_FILE: ingress-a.yaml
+    extends: .prod-project-deployment
+    tags: 
+        - rke-prod-a
+
+production-b:
+    variables:
+        K8S_INGRESS_FILE: ingress-b.yaml
+    extends: .prod-project-deployment
+    tags: 
+        - rke-prod-b

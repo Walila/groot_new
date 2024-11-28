@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: Groot
+  title: Groot
+  description: data role schedule job summary and dashboard
+  tags: [c#, dotnet, hangfire]
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    gitlab.com/project-slug: matw/Groot
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/twua
+  dependsOn:
+  - database:default/MaRedis

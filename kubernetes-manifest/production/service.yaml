@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: groot
+  namespace: ma
+  labels:
+    name: groot
+spec:
+  type: ClusterIP
+  selector:
+    name: groot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
